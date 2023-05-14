@@ -156,12 +156,11 @@ def get_upscaler(name: str) -> Upscaler:
     file_url = ['https://github.com/mv-lab/swin2sr/releases/download/v0.0.1/Swin2SR_ClassicalSR_X2_64.pth']
 
   if file_url is not None:
-    out_path = "/content/upscaler"
-    model_path = os.path.join(out_path, name + '.pth')
+    out_dir = "./upscaler"
+    model_path = os.path.join(out_dir, os.path.basename(file_url[0]))
     if not os.path.isfile(model_path):
         for url in file_url:
-            model_path = load_file_from_url(
-                url=url, model_dir=out_path, progress=True, file_name=None)
+            model_path = load_file_from_url(url=url, model_dir=out_dir, progress=True, file_name=None)
 
   upscaler = None
   if "RealESRGAN" in name:

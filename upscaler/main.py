@@ -171,6 +171,7 @@ def get_upscaler(name: str) -> Upscaler:
   else:
     upscaler = EsrganUpscaler(model_path, model)
 
+  upscaler.name = name
   return upscaler
 
 def get_upscaler_names():

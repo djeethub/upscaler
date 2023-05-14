@@ -43,7 +43,7 @@ class Upscaler:
 class RealEsrganUpscaler(Upscaler):
   upsampler = None
   
-  def __init__(self, scale, model_path, model, tile, tile_pad, pre_pad):
+  def __init__(self, scale, model_path, model, tile=0, tile_pad=10, pre_pad=10):
     self.upsampler = RealESRGANer(
           scale=scale,
           model_path=model_path,

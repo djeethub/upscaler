@@ -51,7 +51,7 @@ class RealEsrganUpscaler(Upscaler):
           tile=tile,
           tile_pad=tile_pad,
           pre_pad=pre_pad,
-          half=True,
+          half=True if torch.cuda.is_available() else False,
           gpu_id=None)
     
   def do_upscale(self, img, scale):

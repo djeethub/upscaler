@@ -165,7 +165,7 @@ def get_upscaler(name: str) -> Upscaler:
 
   upscaler = None
   if "RealESRGAN" in name:
-    upscaler = RealEsrganUpscaler(netscale, model_path, model, tile, tile_pad, pre_pad)
+    upscaler = RealEsrganUpscaler(netscale, model_path, model)
   elif "Swin2SR" in name:
     upscaler = Swin2SrUpscaler(model_path, model, param_key, netscale)
   else:

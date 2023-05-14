@@ -172,3 +172,11 @@ def get_upscaler(name: str) -> Upscaler:
     upscaler = EsrganUpscaler(model_path, model)
 
   return upscaler
+
+def get_upscaler_names():
+  return ["RRDB_ESRGAN_x4",
+          "4x-UltraSharp",
+          "RealESRGAN_x4plus",
+          "RealESRGAN_x4plus_anime_6B",
+          "Swin2SR_RealworldSR_X4_64_BSRGAN_PSNR",
+          "Swin2SR_ClassicalSR_X2_64"]

@@ -1,5 +1,5 @@
 #import ESRGAN.RRDBNet_arch as arch
-from swin2sr.models.network_swin2sr import Swin2SR as Swin2SR_net
+from .swin2sr.models.network_swin2sr import Swin2SR as Swin2SR_net
 
 from basicsr.archs.rrdbnet_arch import RRDBNet
 from basicsr.utils.download_util import load_file_from_url

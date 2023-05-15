@@ -154,6 +154,13 @@ def get_upscaler(name: str) -> Upscaler:
                       mlp_ratio=2, upsampler='pixelshuffle', resi_connection='1conv')
     param_key = 'params'
     file_url = ['https://github.com/mv-lab/swin2sr/releases/download/v0.0.1/Swin2SR_ClassicalSR_X2_64.pth']
+  if name == "Swin2SR_ClassicalSR_X4_64":
+    netscale = 4
+    model = Swin2SR_net(upscale=netscale, in_chans=3, img_size=64, window_size=8,
+                      img_range=1., depths=[6, 6, 6, 6, 6, 6], embed_dim=180, num_heads=[6, 6, 6, 6, 6, 6],
+                      mlp_ratio=2, upsampler='pixelshuffle', resi_connection='1conv')
+    param_key = 'params'
+    file_url = ['https://github.com/mv-lab/swin2sr/releases/download/v0.0.1/Swin2SR_ClassicalSR_X4_64.pth']
 
   if file_url is not None:
     out_dir = "./upscaler"
@@ -179,4 +186,5 @@ def get_upscaler_names():
           "RealESRGAN_x4plus",
           "RealESRGAN_x4plus_anime_6B",
           "Swin2SR_RealworldSR_X4_64_BSRGAN_PSNR",
-          "Swin2SR_ClassicalSR_X2_64"]
+          "Swin2SR_ClassicalSR_X2_64",
+          "Swin2SR_ClassicalSR_X4_64"]

@@ -1,2 +1,2 @@
-from .swin2sr.models.network_swin2sr import Swin2SR
+import swin2sr
 from .main import get_upscaler

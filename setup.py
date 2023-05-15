@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='upscaler',
-    version='0.0.12',
+    version='0.0.13',
     description='upscaler',
     url='https://github.com/djeethub/upscaler.git',
     packages=find_packages(),

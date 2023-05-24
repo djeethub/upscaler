@@ -1,5 +1,6 @@
 #import ESRGAN.RRDBNet_arch as arch
-from .network_swin2sr import Swin2SR as Swin2SR_net
+from .swin2sr.network_swin2sr import Swin2SR as Swin2SR_net
+from .esrgan.RRDBNet_arch import RRDBNet as RRDBNet_arch
 
 from basicsr.archs.rrdbnet_arch import RRDBNet
 from basicsr.utils.download_util import load_file_from_url
@@ -7,11 +8,9 @@ from basicsr.utils.download_util import load_file_from_url
 from realesrgan import RealESRGANer
 from realesrgan.archs.srvgg_arch import SRVGGNetCompact
 
-import os
-import cv2
+import os, cv2, torch
 import numpy as np
 from PIL import Image
-import torch
 
 td = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -130,7 +129,7 @@ def get_upscaler(name: str) -> Upscaler:
     model = RRDBNet(3, 3, 64, 23, gc=32)
     file_url = ['https://huggingface.co/databuzzword/esrgan/resolve/main/RRDB_ESRGAN_x4.pth']
   if name == "4x-UltraSharp":
-    model = RRDBNet(3, 3, 64, 23, gc=32)
+    model = RRDBNet_arch(3, 3, 64, 23, gc=32)
     file_url = ['https://huggingface.co/embed/upscale/resolve/main/4x-UltraSharp.pth']
   if name == "RealESRGAN_x4plus":
     model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=4)

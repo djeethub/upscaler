@@ -47,14 +47,18 @@ def get_upscaler(name: str) -> Upscaler:
     param_key = 'params'
     file_url = ['https://github.com/mv-lab/swin2sr/releases/download/v0.0.1/Swin2SR_ClassicalSR_X4_64.pth']
   elif name == "SwinIR-L_x4_GAN":
-    model = SwinIR(upscale=4, in_chans=3, img_size=64, window_size=8,
+    netscale = 4
+    window_size = 8
+    model = SwinIR(upscale=netscale, in_chans=3, img_size=64, window_size=8,
                         img_range=1., depths=[6, 6, 6, 6, 6, 6, 6, 6, 6], embed_dim=240,
                         num_heads=[8, 8, 8, 8, 8, 8, 8, 8, 8],
                         mlp_ratio=2, upsampler='nearest+conv', resi_connection='3conv')
     param_key = 'params_ema'
     file_url = ['https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_GAN.pth']
   elif name == "Real_HAT_GAN_SRx4":
-    model = HAT(upscale=4, in_chans=3, img_size=64, window_size=16, compress_ratio=3,
+    netscale = 4
+    window_size = 16
+    model = HAT(upscale=netscale, in_chans=3, img_size=64, window_size=16, compress_ratio=3,
                 squeeze_factor=30, conv_scale=0.01, overlap_ratio=0.5, img_range=1.,
                 depths=[6, 6, 6, 6, 6, 6], embed_dim=180,num_heads=[6, 6, 6, 6, 6, 6],
                 mlp_ratio=2, upsampler='pixelshuffle', resi_connection='1conv')
@@ -74,7 +78,7 @@ def get_upscaler(name: str) -> Upscaler:
   elif "Swin2SR" in name:
     upscaler = Swin2SrUpscaler(model_path, model, param_key, netscale)
   elif "SwinIR" in name or "HAT" in name:
-    upscaler = SwinIRUpscaler(model_path, model, param_key)
+    upscaler = SwinIRUpscaler(model_path, model, param_key, netscale, window_size)
   else:
     upscaler = EsrganUpscaler(model_path, model)
 

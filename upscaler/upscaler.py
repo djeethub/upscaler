@@ -111,12 +111,14 @@ class Swin2SrUpscaler(Upscaler):
 from torch.nn import functional as F
 
 class SwinIRUpscaler(Upscaler):
-  def __init__(self, model_path, model, param_key):
+  def __init__(self, model_path, model, param_key, scale, window_size):
     pretrained_model = torch.load(model_path)
     model.load_state_dict(pretrained_model[param_key] if param_key in pretrained_model.keys() else pretrained_model, strict=True)
     model.eval()
     model = model.to(td)
     self.model = model
+    self.window_size = window_size
+    self.scale = scale
 
   def do_upscale(self, img, scale):
     img = self.preprocess(img)
@@ -124,8 +126,8 @@ class SwinIRUpscaler(Upscaler):
     img = img.astype(np.float32) / 255.
     img = torch.from_numpy(np.transpose(img[:, :, [2, 1, 0]], (2, 0, 1))).float()
     img = img.unsqueeze(0).to(td)
-    window_size = self.model.window_size
-    scale = self.model.upscale
+    window_size = self.window_size
+    scale = self.scale
 
     # inference
     with torch.no_grad():

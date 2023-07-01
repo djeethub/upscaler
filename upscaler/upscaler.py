@@ -72,13 +72,12 @@ class EsrganUpscaler(Upscaler):
     return self.postprocess(output)
 
 class Swin2SrUpscaler(Upscaler):
-  def __init__(self, model_path, model, param_key, scale):
+  def __init__(self, model_path, model, param_key):
     pretrained_model = torch.load(model_path)
     model.load_state_dict(pretrained_model[param_key] if param_key in pretrained_model.keys() else pretrained_model, strict=True)
     model.eval()
     model = model.to(td)
     self.model = model
-    self.scale = scale
 
   def do_upscale(self, img, scale):
     img = self.preprocess(img)
@@ -87,6 +86,7 @@ class Swin2SrUpscaler(Upscaler):
     img_lq = np.transpose(img_lq if img_lq.shape[2] == 1 else img_lq[:, :, [2, 1, 0]], (2, 0, 1))  # HCW-BGR to CHW-RGB
     img_lq = torch.from_numpy(img_lq).float().unsqueeze(0).to(td)  # CHW-RGB to NCHW-RGB
     window_size = self.model.window_size
+    scale = self.model.upscale
 
     # inference
     with torch.no_grad():
@@ -98,7 +98,7 @@ class Swin2SrUpscaler(Upscaler):
         img_lq = torch.cat([img_lq, torch.flip(img_lq, [3])], 3)[:, :, :, :w_old + w_pad]
         output = self.model(img_lq)
         
-        output = output[..., :h_old * self.scale, :w_old * self.scale]
+        output = output[..., :h_old * scale, :w_old * scale]
 
     # save image
     output = output.data.squeeze().float().cpu().clamp_(0, 1).numpy()
@@ -132,9 +132,9 @@ class SwinIRUpscaler(Upscaler):
         # pad input image to be a multiple of window_size
         mod_pad_h, mod_pad_w = 0, 0
         _, _, h, w = img.size()
-        if h % self.window_size != 0:
+        if h % window_size != 0:
             mod_pad_h = window_size - h % window_size
-        if w % self.window_size != 0:
+        if w % window_size != 0:
             mod_pad_w = window_size - w % window_size
         img = F.pad(img, (0, mod_pad_w, 0, mod_pad_h), 'reflect')
 

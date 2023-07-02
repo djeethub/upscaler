@@ -9,8 +9,9 @@ from .hat.hat_arch import HAT
 
 from .upscaler import Upscaler, RealEsrganUpscaler, Swin2SrUpscaler, EsrganUpscaler, SwinIRUpscaler
 
-def get_upscaler(name: str) -> Upscaler:
+def get_upscaler(name: str, **kwargs) -> Upscaler:
   file_url = None
+  netscale = 4
   if name == "RRDB_ESRGAN_x4":
     model = RRDBNet(3, 3, 64, 23, gc=32)
     file_url = ['https://huggingface.co/databuzzword/esrgan/resolve/main/RRDB_ESRGAN_x4.pth']
@@ -74,15 +75,15 @@ def get_upscaler(name: str) -> Upscaler:
 
   upscaler = None
   if "RealESRGAN" in name:
-    upscaler = RealEsrganUpscaler(netscale, model_path, model)
+    upscaler = RealEsrganUpscaler(model_path, model, scale=netscale, **kwargs)
   elif "Swin2SR" in name:
-    upscaler = Swin2SrUpscaler(model_path, model, param_key, netscale)
+    upscaler = Swin2SrUpscaler(model_path, model, scale=netscale, param_key=param_key, **kwargs)
   elif "SwinIR" in name:
-    upscaler = SwinIRUpscaler(model_path, model, param_key, netscale, window_size)
+    upscaler = SwinIRUpscaler(model_path, model, scale=netscale, param_key=param_key, window_size=window_size, **kwargs)
   elif "HAT" in name:
-    upscaler = SwinIRUpscaler(model_path, model, param_key, netscale, window_size, True, 256, window_size * 2)
+    upscaler = SwinIRUpscaler(model_path, model, scale=netscale, param_key=param_key, window_size=window_size, **kwargs)
   else:
-    upscaler = EsrganUpscaler(model_path, model)
+    upscaler = EsrganUpscaler(model_path, model, **kwargs)
 
   upscaler.name = name
   return upscaler

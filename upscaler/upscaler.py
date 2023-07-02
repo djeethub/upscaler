@@ -36,7 +36,8 @@ class Upscaler:
     return img
 
 class RealEsrganUpscaler(Upscaler):
-  def __init__(self, scale, model_path, model, tile=0, tile_pad=10, pre_pad=10):
+  def __init__(self, model_path, model, scale, tile=0, tile_pad=10, pre_pad=10, half=False):
+
     self.upsampler = RealESRGANer(
           scale=scale,
           model_path=model_path,
@@ -44,7 +45,7 @@ class RealEsrganUpscaler(Upscaler):
           tile=tile,
           tile_pad=tile_pad,
           pre_pad=pre_pad,
-          half=True if torch.cuda.is_available() else False,
+          half=half,
           gpu_id=None)
     
   def do_upscale(self, img, scale):
@@ -78,7 +79,7 @@ class EsrganUpscaler(Upscaler):
 class Swin2SrUpscaler(Upscaler):
   def __init__(self, model_path, model, param_key, scale):
     pretrained_model = torch.load(model_path)
-    model.load_state_dict(pretrained_model[param_key] if param_key in pretrained_model.keys() else pretrained_model, strict=True)
+    model.load_state_dict(pretrained_model[param_key] if param_key in pretrained_model else pretrained_model, strict=True)
     model.eval()
     model = model.to(td)
     self.model = model
@@ -119,7 +120,7 @@ import math
 class SwinIRUpscaler(Upscaler):
   def __init__(self, model_path, model, param_key, scale, window_size, tile=False, tile_size=256, tile_pad=32):
     pretrained_model = torch.load(model_path)
-    model.load_state_dict(pretrained_model[param_key] if param_key in pretrained_model.keys() else pretrained_model, strict=True)
+    model.load_state_dict(pretrained_model[param_key] if param_key in pretrained_model else pretrained_model, strict=True)
     model.eval()
     model = model.to(td)
     self.model = model

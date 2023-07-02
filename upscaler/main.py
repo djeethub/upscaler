@@ -78,7 +78,7 @@ def get_upscaler(name: str) -> Upscaler:
   elif "Swin2SR" in name:
     upscaler = Swin2SrUpscaler(model_path, model, param_key, netscale)
   elif "SwinIR" in name or "HAT" in name:
-    upscaler = SwinIRUpscaler(model_path, model, param_key, netscale, window_size, "HAT" in name)
+    upscaler = SwinIRUpscaler(model_path, model, param_key, netscale, window_size)
   else:
     upscaler = EsrganUpscaler(model_path, model)
 

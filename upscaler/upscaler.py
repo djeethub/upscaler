@@ -26,7 +26,7 @@ class Upscaler:
 
     start_time = time.time()
     img = self.do_upscale(img, scale)
-    print(f'upscale time: {time.time() - start_time:.2f}')
+    print(f'upscale time: {time.time() - start_time:.2f}s')
 
     if img.width != dest_w or img.height != dest_h:
       img = img.resize((int(dest_w), int(dest_h)), resample=Image.LANCZOS)

@@ -118,7 +118,7 @@ from torch.nn import functional as F
 import math
 
 class SwinIRUpscaler(Upscaler):
-  def __init__(self, model_path, model, param_key, scale, window_size, tile=False, tile_size=256, tile_pad=32):
+  def __init__(self, model_path, model, param_key, scale, window_size, tile=0, tile_pad=0):
     pretrained_model = torch.load(model_path)
     model.load_state_dict(pretrained_model[param_key] if param_key in pretrained_model else pretrained_model, strict=True)
     model.eval()
@@ -127,8 +127,7 @@ class SwinIRUpscaler(Upscaler):
     self.window_size = window_size
     self.scale = scale
     self.tile = tile
-    self.tile_size = tile_size
-    self.tile_pad = tile_pad
+    self.tile_pad = window_size if tile_pad == 0 else tile_pad
 
   def tile_process(self, img):
       """It will first crop input images to tiles, and then process each tile.
@@ -142,20 +141,20 @@ class SwinIRUpscaler(Upscaler):
 
       # start with black image
       output = img.new_zeros(output_shape)
-      tiles_x = math.ceil(width / self.tile_size)
-      tiles_y = math.ceil(height / self.tile_size)
+      tiles_x = math.ceil(width / self.tile)
+      tiles_y = math.ceil(height / self.tile)
 
       # loop over all tiles
       for y in range(tiles_y):
           for x in range(tiles_x):
               # extract tile from input image
-              ofs_x = x * self.tile_size
-              ofs_y = y * self.tile_size
+              ofs_x = x * self.tile
+              ofs_y = y * self.tile
               # input tile area on total image
               input_start_x = ofs_x
-              input_end_x = min(ofs_x + self.tile_size, width)
+              input_end_x = min(ofs_x + self.tile, width)
               input_start_y = ofs_y
-              input_end_y = min(ofs_y + self.tile_size, height)
+              input_end_y = min(ofs_y + self.tile, height)
 
               # input tile area on total image with padding
               input_start_x_pad = max(input_start_x - self.tile_pad, 0)
@@ -211,7 +210,7 @@ class SwinIRUpscaler(Upscaler):
             mod_pad_w = window_size - w % window_size
         img = F.pad(img, (0, mod_pad_w, 0, mod_pad_h), 'reflect')
 
-        if self.tile:
+        if self.tile > 0:
           output = self.tile_process(img)
         else:
           output = self.model(img)

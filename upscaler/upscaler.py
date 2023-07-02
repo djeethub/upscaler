@@ -109,9 +109,10 @@ class Swin2SrUpscaler(Upscaler):
     return self.postprocess(output)
 
 from torch.nn import functional as F
+import math
 
 class SwinIRUpscaler(Upscaler):
-  def __init__(self, model_path, model, param_key, scale, window_size):
+  def __init__(self, model_path, model, param_key, scale, window_size, tile=False):
     pretrained_model = torch.load(model_path)
     model.load_state_dict(pretrained_model[param_key] if param_key in pretrained_model.keys() else pretrained_model, strict=True)
     model.eval()
@@ -119,6 +120,70 @@ class SwinIRUpscaler(Upscaler):
     self.model = model
     self.window_size = window_size
     self.scale = scale
+    self.tile = tile
+    self.tile_size = 512
+    self.tile_pad = 32
+
+  def tile_process(self, img):
+      """It will first crop input images to tiles, and then process each tile.
+      Finally, all the processed tiles are merged into one images.
+      Modified from: https://github.com/ata4/esrgan-launcher
+      """
+      batch, channel, height, width = img.shape
+      output_height = height * self.scale
+      output_width = width * self.scale
+      output_shape = (batch, channel, output_height, output_width)
+
+      # start with black image
+      output = img.new_zeros(output_shape)
+      tiles_x = math.ceil(width / self.tile_size)
+      tiles_y = math.ceil(height / self.tile_size)
+
+      # loop over all tiles
+      for y in range(tiles_y):
+          for x in range(tiles_x):
+              # extract tile from input image
+              ofs_x = x * self.tile_size
+              ofs_y = y * self.tile_size
+              # input tile area on total image
+              input_start_x = ofs_x
+              input_end_x = min(ofs_x + self.tile_size, width)
+              input_start_y = ofs_y
+              input_end_y = min(ofs_y + self.tile_size, height)
+
+              # input tile area on total image with padding
+              input_start_x_pad = max(input_start_x - self.tile_pad, 0)
+              input_end_x_pad = min(input_end_x + self.tile_pad, width)
+              input_start_y_pad = max(input_start_y - self.tile_pad, 0)
+              input_end_y_pad = min(input_end_y + self.tile_pad, height)
+
+              # input tile dimensions
+              input_tile_width = input_end_x - input_start_x
+              input_tile_height = input_end_y - input_start_y
+              tile_idx = y * tiles_x + x + 1
+              input_tile = self.img[:, :, input_start_y_pad:input_end_y_pad, input_start_x_pad:input_end_x_pad]
+
+              # upscale tile
+              output_tile = self.model(input_tile)
+
+              # output tile area on total image
+              output_start_x = input_start_x * self.scale
+              output_end_x = input_end_x * self.scale
+              output_start_y = input_start_y * self.scale
+              output_end_y = input_end_y * self.scale
+
+              # output tile area without padding
+              output_start_x_tile = (input_start_x - input_start_x_pad) * self.scale
+              output_end_x_tile = output_start_x_tile + input_tile_width * self.scale
+              output_start_y_tile = (input_start_y - input_start_y_pad) * self.scale
+              output_end_y_tile = output_start_y_tile + input_tile_height * self.scale
+
+              # put tile into output image
+              output[:, :, output_start_y:output_end_y,
+                          output_start_x:output_end_x] = output_tile[:, :, output_start_y_tile:output_end_y_tile,
+                                                                      output_start_x_tile:output_end_x_tile]
+          
+      return output
 
   def do_upscale(self, img, scale):
     img = self.preprocess(img)
@@ -140,7 +205,10 @@ class SwinIRUpscaler(Upscaler):
             mod_pad_w = window_size - w % window_size
         img = F.pad(img, (0, mod_pad_w, 0, mod_pad_h), 'reflect')
 
-        output = self.model(img)
+        if self.tile:
+          output = self.tile_process(img)
+        else:
+          output = self.model(img)
         _, _, h, w = output.size()
         output = output[:, :, 0:h - mod_pad_h * scale, 0:w - mod_pad_w * scale]
 

@@ -73,12 +73,12 @@ def get_upscaler(name: str) -> Upscaler:
             model_path = load_file_from_url(url=url, model_dir=out_dir, progress=True, file_name=None)
 
   upscaler = None
-  if "RealESRGAN" in name or "HAT" in name:
+  if "RealESRGAN" in name:
     upscaler = RealEsrganUpscaler(netscale, model_path, model)
   elif "Swin2SR" in name:
     upscaler = Swin2SrUpscaler(model_path, model, param_key, netscale)
-  elif "SwinIR" in name:
-    upscaler = SwinIRUpscaler(model_path, model, param_key, netscale, window_size)
+  elif "SwinIR" in name or "HAT" in name:
+    upscaler = SwinIRUpscaler(model_path, model, param_key, netscale, window_size, "HAT" in name)
   else:
     upscaler = EsrganUpscaler(model_path, model)
 

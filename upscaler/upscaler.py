@@ -1,4 +1,4 @@
-import cv2, torch
+import cv2, torch, time
 import numpy as np
 from PIL import Image
 
@@ -24,7 +24,9 @@ class Upscaler:
     dest_w = int(img.width * scale)
     dest_h = int(img.height * scale)
 
+    start_time = time.time()
     img = self.do_upscale(img, scale)
+    print(f'upscale time: {time.time() - start_time:.2f}')
 
     if img.width != dest_w or img.height != dest_h:
       img = img.resize((int(dest_w), int(dest_h)), resample=Image.LANCZOS)

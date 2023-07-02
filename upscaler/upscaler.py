@@ -168,16 +168,16 @@ class SwinIRUpscaler(Upscaler):
               output_tile = self.model(input_tile)
 
               # output tile area on total image
-              output_start_x = input_start_x * self.opt['scale']
-              output_end_x = input_end_x * self.opt['scale']
-              output_start_y = input_start_y * self.opt['scale']
-              output_end_y = input_end_y * self.opt['scale']
+              output_start_x = input_start_x * self.scale
+              output_end_x = input_end_x * self.scale
+              output_start_y = input_start_y * self.scale
+              output_end_y = input_end_y * self.scale
 
               # output tile area without padding
-              output_start_x_tile = (input_start_x - input_start_x_pad) * self.opt['scale']
-              output_end_x_tile = output_start_x_tile + input_tile_width * self.opt['scale']
-              output_start_y_tile = (input_start_y - input_start_y_pad) * self.opt['scale']
-              output_end_y_tile = output_start_y_tile + input_tile_height * self.opt['scale']
+              output_start_x_tile = (input_start_x - input_start_x_pad) * self.scale
+              output_end_x_tile = output_start_x_tile + input_tile_width * self.scale
+              output_start_y_tile = (input_start_y - input_start_y_pad) * self.scale
+              output_end_y_tile = output_start_y_tile + input_tile_height * self.scale
 
               # put tile into output image
               output[:, :, output_start_y:output_end_y,

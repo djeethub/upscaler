@@ -161,7 +161,7 @@ class SwinIRUpscaler(Upscaler):
               input_tile_width = input_end_x - input_start_x
               input_tile_height = input_end_y - input_start_y
               tile_idx = y * tiles_x + x + 1
-              input_tile = self.img[:, :, input_start_y_pad:input_end_y_pad, input_start_x_pad:input_end_x_pad]
+              input_tile = img[:, :, input_start_y_pad:input_end_y_pad, input_start_x_pad:input_end_x_pad]
 
               # upscale tile
               output_tile = self.model(input_tile)

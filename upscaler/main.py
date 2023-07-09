@@ -66,6 +66,10 @@ def get_upscaler(name: str, **kwargs) -> Upscaler:
     param_key = 'params_ema'
     file_url = ['https://huggingface.co/bullhug/test1/resolve/main/Real_HAT_GAN_SRx4.pth']
 
+  user_url = kwargs.pop("model_url", None)
+  if user_url:
+    file_url = [user_url]
+
   if file_url is not None:
     out_dir = "./upscaler"
     model_path = os.path.join(out_dir, os.path.basename(file_url[0]))
@@ -86,6 +90,8 @@ def get_upscaler(name: str, **kwargs) -> Upscaler:
     upscaler = EsrganUpscaler(model_path, model, **kwargs)
 
   upscaler.name = name
+  if user_url:
+    upscaler.name, _ = os.path.splitext(os.path.basename(user_url))
   return upscaler
 
 def get_upscaler_names():
